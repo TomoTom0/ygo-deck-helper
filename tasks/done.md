@@ -2,6 +2,252 @@
 
 完了したタスク
 
+## 初期調査（過去）
 - [x] 認証フローの初期調査（OAuth 2.0 等の確認）
 - [x] 認証に関する基本的な制約の整理（SameSite, HTTPOnly, CORS の確認）
 - [x] `dev/session.example.env` と `dev/test-api.ts` の作成
+
+## Chrome DevTools を使った実地調査（2025-10-30）
+- [x] Chrome ブラウザの起動とリモートデバッグ接続の確立
+- [x] ログイン後のセッション情報の取得（JSESSIONID, cgid, lt）
+- [x] マイデッキ一覧ページの構造調査
+  - デッキ一覧の HTML 構造
+  - 編集リンクの取得方法（hidden input `.link_value`）
+  - cgid, ytkn, dno パラメータの特定
+- [x] デッキ詳細ページ（ope=1）の構造調査
+  - カード数の表示
+  - カードリストの HTML 構造
+  - デッキメタ情報の取得
+- [x] デッキ編集ページ（ope=2）の構造調査
+  - フォーム要素の詳細分析
+  - デッキヘッダー情報の入力項目
+  - カード情報の格納方式
+- [x] デッキ保存の仕組み調査（ope=3）
+  - AJAX POST リクエストの詳細
+  - JavaScript `Regist()` 関数の解析
+  - レスポンス形式（JSON）の確認
+- [x] 操作コード（ope）の一覧整理
+  - ope=1: デッキ表示/詳細
+  - ope=2: デッキ編集
+  - ope=3: デッキ保存
+  - ope=4: デッキ一覧
+  - ope=6: デッキ新規作成
+- [x] ytkn（CSRFトークン）の動作確認
+  - ページ遷移ごとに変わることを確認
+  - hidden input での取得方法
+- [x] 調査結果ドキュメントの作成（`docs/research/api-investigation-results.md`）
+
+## デッキ編集画面の調査（2025-10-30 13:20完了）
+- [x] Chrome起動用セットアップスクリプトの作成（scripts/debug/setup/）
+- [x] デッキ編集ページ（ope=2）への移動
+- [x] カード名入力フィールド（monm）の構造調査
+  - name属性、ID、class、値の形式を確認
+- [x] 枚数入力フィールド（monum）の構造調査
+  - name属性、ID、class、値の形式を確認
+- [x] カードID（monsterCardId）とイメージID（imgs）の確認
+- [x] 調査結果ドキュメントの作成（docs/design/edit/deck-edit.md）
+
+## カード検索機能の調査（フェーズ1）（2025-10-30 14:00完了）
+- [x] 基本検索フォーム構造の確認（form_search, GET, 140フィールド）
+- [x] 全検索パラメータの特定（140個のフィールドをリスト化）
+- [x] 属性パラメータの解析（7種類: 光/闇/水/炎/地/風/神）
+- [x] 種族パラメータの解析（26種類: ドラゴン/アンデット/悪魔など）
+- [x] 魔法/罠効果パラメータの解析（7種類: 通常/カウンター/フィールドなど）
+- [x] 検索タイプの特定（stype: カード名/カードテキスト/ペンデュラム効果/カードNo）
+- [x] カードタイプの特定（ctype: すべて/モンスター/魔法/罠）
+- [x] 数値範囲パラメータの確認（レベル、Pスケール、リンク、攻撃力、守備力）
+- [x] 発売日範囲パラメータの確認
+- [x] 公式JSファイルのダウンロード（5ファイル）
+- [x] 中間レポートの作成（docs/research/card-search-parameters.md）
+
+## カード検索機能の徹底調査（フェーズ2）（2025-10-30 18:00完了）
+- [x] rpパラメータの隠し機能発見（UI表示：10/25/50/100、実際：1〜2000）
+- [x] sortパラメータの完全マッピング（13種類、sort=10は欠番）
+- [x] 属性検索の実URLテスト（3属性でテスト実行）
+- [x] 種族検索の実URLテスト（3種族でテスト実行）
+- [x] 複数パラメータ組み合わせテスト（9パターン）
+  - 攻撃力範囲指定（2000-3000）
+  - 守備力範囲指定（0-2000）
+  - レベル範囲指定（4-7）
+  - ペンデュラムスケール（1-5）
+  - カードタイプ別検索（モンスター/魔法/罠）
+  - 効果モンスター、シンクロモンスター検索
+- [x] リンクマーカー機能の完全解明
+  - 9方向のチェックボックス構造（linkbtn1〜9、5は欠番）
+  - link_m（AND/OR条件）の動作確認
+  - 複数方向選択のURLパラメータ確認
+- [x] 複数選択パラメータの仕様確認
+  - attr（属性）の複数選択テスト
+  - species（種族）の複数選択テスト
+  - other（その他条件）の複数選択テスト
+  - jogai（除外条件）の複数選択テスト
+  - パラメータ名繰り返し方式の確認（attr=11&attr=12&attr=14）
+- [x] 条件結合パラメータの動作確認
+  - othercon（AND/OR）の動作確認
+  - link_m（AND/OR）の動作確認
+- [x] ソート選択肢の抽出（extract-sort-options.js）
+- [x] その他条件ラベルの抽出（extract-other-jogai-labels.js）
+- [x] 多言語対応i18nデータ構造の作成
+  - 日本語ロケール（ja）の完全マッピング
+  - パラメータ値とラベルの対応表
+  - メタデータ（デフォルト値、複数選択可能パラメータ、範囲パラメータ）
+- [x] 完全仕様書の作成（docs/research/card-search-parameters-complete-spec.md）
+- [x] 調査レポートの作成（docs/research/card-search-investigation-report.md）
+- [x] テストスクリプト群の作成
+  - test-attribute-search-v2.js
+  - test-multiple-params.js
+  - test-linkmarker-checked.js
+  - test-multiple-checkbox-values.js
+- [x] 生成データの整理（9個のJSONファイル + i18nデータ）
+
+## ドキュメント整理（2025-10-30 16:15完了）
+- [x] 汎用調査手法ガイドの作成（investigation-methodology.md）
+  - WebSocket接続、DOM操作、データ抽出の基本パターン
+  - 5つの調査手法、3つのデータ抽出パターン
+  - テストと検証、トラブルシューティング
+- [x] カード検索 再調査ガイドの作成（card-search/reinvestigation-guide.md）
+  - 5ステップの再調査手順（仕様変更確認用）
+  - 他言語対応の調査手順（en, ko, zh-CN）
+  - 差分確認の方法、実行可能なスクリプトのテンプレート
+- [x] docs/research/ディレクトリの整理
+  - card-search/サブディレクトリの作成
+  - archive/への古いファイル移動
+  - ファイル名から冗長なプレフィックスを削除
+  - 各ディレクトリにREADME追加
+- [x] INVESTIGATION_SUMMARY.mdの更新（パス修正）
+- [x] research/README.mdの全面刷新
+  - ディレクトリ構造の説明
+  - クイックスタートガイド
+  - 主要ドキュメントの紹介
+  - 調査済み機能の整理
+- [x] card-search/README.mdの作成
+  - カード検索ドキュメントの目次
+  - 読む順序のガイド
+  - 重要な発見のまとめ
+
+## カード情報HTML構造の徹底調査（2025-10-30 19:30完了）
+- [x] 検索結果ページのHTML構造調査
+  - [x] カードアイテム（.t_row.c_normal）の構造確認
+  - [x] カード名、ふりがな、CID、画像URLの取得方法
+  - [x] 属性、レベル、種族、ATK/DEF情報の抽出パターン
+  - [x] カードテキストの取得方法
+  - [x] ページネーション構造の確認
+  - [x] 検索結果から直接取得可能な情報の特定
+- [x] カード詳細ページのHTML構造調査
+  - [x] 収録パック情報の構造（.t_row形式）
+    - 発売日、カードナンバー、パック名
+    - レアリティ情報（.lr_icon）
+    - パック検索リンク
+  - [x] 関連カード情報の取得（検索結果と同じ.t_row構造）
+  - [x] Q&A情報の構造
+    - 質問タイトル（.dack_name .name）
+    - タグ（.tag_name）
+    - 更新日（.div.date）
+    - Q&A詳細ページへのリンク
+- [x] Q&A一覧ページの構造確認
+  - [x] Q&Aアイテムの.t_row構造
+  - [x] ページネーション
+  - [x] フィルタリング機能
+- [x] 調査スクリプトの作成
+  - [x] investigate-search-results.js（検索結果ページ調査）
+  - [x] investigate-card-detail.js（カード詳細調査）
+  - [x] investigate-card-extended-info.js（収録パック・関連カード・Q&A）
+  - [x] investigate-search-card-details.js（検索結果での詳細情報取得確認）
+  - [x] investigate-qa-page.js（Q&Aページ構造調査）
+- [x] 日本語版の調査（request_locale=ja パラメータの確認）
+- [x] スクリーンショットとHTMLの保存（各ページ）
+- [x] 包括的なドキュメント作成
+  - [x] `docs/research/card-information-structure.md`の作成
+  - セレクター一覧、実装時の考慮事項を含む完全な仕様書
+
+## デッキ操作API完全解明（2025-10-30 20:00完了）
+- [x] デッキ削除API（ope=7）の調査
+  - [x] DeckDelete()関数の実装確認
+  - [x] 確認ダイアログの実装
+  - [x] URL構造とパラメータの確認
+  - [x] ドキュメント追加（api-investigation-results.md）
+- [x] デッキ複製API（ope=8）の調査
+  - [x] URL構造の確認
+  - [x] パラメータ（cgid, dno）の特定
+  - [x] 複製後の遷移先確認（新しいdnoで編集ページへ）
+  - [x] ドキュメント追加（api-investigation-results.md）
+- [x] デッキコード発行（ope=13）の調査
+  - [x] URL構造の確認
+  - [x] デッキコード生成機能の動作確認
+- [x] デッキ保存API（ope=3）の完全解明
+  - [x] Regist()関数の完全な実装コードを取得
+  - [x] jQueryのAJAXリクエストの詳細確認
+    - type: 'post'
+    - URL: `/yugiohdb/member_deck.action?cgid={cgid}&request_locale=ja`
+    - data: `'ope=3&' + $('#form_regist').serialize()`
+    - dataType: 'json'
+  - [x] 保存ボタン（btn_regist）の実装確認
+  - [x] レスポンス形式の確認
+    - 成功: `{"result": true}`
+    - 失敗: `{"error": ["エラーメッセージ"]}`
+  - [x] 成功時の自動リダイレクト確認
+- [x] カード追加操作の完全実装
+  - [x] カード入力スロットの構造確認（65個のスロット）
+    - カード名（monm）
+    - 枚数（monum）
+    - カードID（monsterCardId）
+    - 画像ID（imgs）
+  - [x] 空のスロット検出ロジックの実装
+  - [x] カード追加のプログラム実装（Playwright使用）
+    - 編集ページへのアクセス
+    - DOM操作でカード名と枚数を設定
+    - jQueryのAJAXで保存
+  - [x] 実際のカード追加テスト
+    - テストカード:「灰流うらら」
+    - 保存成功確認（レスポンス: `{"result": true}`）
+    - デッキへの追加を確認（3枚として登録）
+  - [x] カードIDが空でも保存可能なことを確認
+    - サーバー側が自動的に解決またはカード統合
+- [x] 調査スクリプト群の作成
+  - [x] add-card-and-save.js（カード追加と保存の完全実装）
+  - [x] verify-card-added.js（カード追加の確認）
+  - [x] debug-form-data.js（フォームデータのデバッグ）
+  - [x] find-save-button.js（保存ボタンの探索）
+  - [x] get-regist-function.js（Regist関数の取得）
+- [x] APIドキュメントの大幅更新
+  - [x] カード追加操作セクションの追加
+    - カード入力スロットの構造
+    - カード追加の手順
+    - プログラムからの実装例
+  - [x] 保存API（ope=3）の詳細な実装ガイド
+    - Regist関数の完全な実装コード
+    - 保存ボタンの実装
+    - プログラムからの呼び出し例
+  - [x] デッキ操作APIの完全な仕様書化
+
+## カード追加ワークフローの完成とデバッグ（2025-10-31 完了）
+- [x] 完全版ワークフロースクリプトの作成
+  - [x] カード検索からカード情報取得
+  - [x] カードタイプの自動判定（`.box_card_attribute span:last-child`）
+  - [x] デッキ編集ページでカード追加
+  - [x] デッキヘッダー情報の変更
+  - [x] 保存実行
+  - [x] 検証（デッキ編集ページで確認）
+- [x] カードID設定の重大な問題発見と修正
+  - [x] 問題の特定：すべてのカードタイプが同じID属性を使用
+    - モンスター: `id="card_id_1"`, `name="monsterCardId"`
+    - 魔法: `id="card_id_1"`, `name="spellCardId"`
+    - 罠: `id="card_id_1"`, `name="trapCardId"`
+  - [x] `querySelector('#card_id_1')`が最初に見つかったモンスターフィールドを選択していた
+  - [x] 解決策の実装：IDとname属性の両方で選択
+    - `querySelector('#card_id_1[name="spellCardId"]')`
+- [x] 再利用可能なsaveDeck関数の作成（tmp/save-deck-function.js）
+  - [x] デッキ番号とデッキデータ辞書を受け取る
+  - [x] デッキ内容を上書き保存
+  - [x] カードタイプに応じた正しいフィールド選択
+  - [x] 動作確認：3枚の魔法カードを正しく保存
+- [x] complete-workflow-with-card-type.jsの修正
+  - [x] getFieldNames関数の修正（cardIdName追加）
+  - [x] カードID設定コードの修正
+  - [x] 動作確認：3枚の魔法カードを正しく保存
+- [x] デバッグスクリプトの作成
+  - [x] save-deck-debug.js（serialize()内容の確認）
+  - [x] verify-deck-4.js（デッキ内容の検証）
+- [x] ドキュメント更新
+  - [x] カードタイプ別フィールド名の完全なマッピング
+  - [x] 正しいDOMセレクタの使用方法
