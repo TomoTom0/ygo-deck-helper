@@ -251,3 +251,18 @@
 - [x] ドキュメント更新
   - [x] カードタイプ別フィールド名の完全なマッピング
   - [x] 正しいDOMセレクタの使用方法
+
+## Chrome拡張設計ドキュメントの作成（2025-10-31 完了）
+- [x] 調査結果の位置づけを明確化
+  - Playwright調査 = Chrome拡張実装のための情報源
+- [x] Chrome拡張向けアーキテクチャ設計
+  - [x] docs/design/chrome-extension-architecture.md
+  - Content Scripts、Background、Popup の構成
+  - 調査結果（DOM構造、API仕様）を反映した設計
+  - カードタイプ別フィールドマッピングの活用
+- [x] 実装ガイドの作成
+  - [x] docs/design/implementation-guide.md
+  - 調査スクリプトからChrome拡張へのマッピング
+  - 各機能の実装方法と参照すべき調査結果
+  - 実装チェックリスト
+  - トラブルシューティングガイド
