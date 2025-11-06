@@ -1271,12 +1271,13 @@ const cards = await searchCards({
 ### ビルド・テスト
 - ✅ TypeScriptビルド成功
 - ✅ 型エラーなし
+- ⏳ 動作確認テスト（未実施）
 
-### バージョンアップ
-- **0.4.0 → 0.5.0** (マイナーバージョンアップ: 新機能の追加)
+### 状態
+- 実装完了（未テスト）
+- バージョンアップは動作確認後に実施予定
 
 ### 成果物
 - `extension/src/api/card-search.ts`: SearchOptions定義、searchCards実装
 - 型マッピング定義（Attribute, Race, MonsterType, EffectType → API値）
-- version.dat: 0.5.0
 
