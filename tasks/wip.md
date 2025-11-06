@@ -1,11 +1,61 @@
 # 作業中のタスク
 
-現在作業中のタスクはありません。
+## 2025-11-07: 検索フォーム分析の完了と残課題
 
-## 最近完了したタスク（2025-11-06）
-- カード検索機能の完全実装 ✅
-- SearchOptionsインターフェースの設計と実装 ✅
-- 各種検索条件フィルタの実装 ✅
-- バージョン 0.5.0 へのアップデート ✅
+### 完了した作業（2025-11-07）
+- ✅ **検索フォームの正しい分析を実施**
+  - tmp/extract-form-mappings-v2.jsで正しい抽出ロジックを実装
+  - HTMLのラベルテキストとvalue属性の対応を正しく抽出
+  - tmp/form-mappings.jsonに全マッピングを保存
 
-詳細は `tasks/done.md` を参照してください。
+- ✅ **主要パラメータのマッピング検証と修正**
+  - species（種族）：26件抽出、illusion: '26' → '34' に修正
+  - attr（属性）：7件抽出、全て正しいことを確認
+  - other（モンスタータイプ）：15件抽出、全て正しいことを確認
+  - effe（魔法・罠効果タイプ）：7件抽出、全て正しいことを確認
+
+- ✅ **実装への反映とデプロイ**
+  - extension/src/api/card-search.tsのillusionマッピングを修正
+  - ビルド・デプロイ完了
+  - tasks/done.mdに詳細記録
+
+### 追加検証完了（2025-11-07）
+
+#### linkbtn、level、Pscaleの検証
+- ✅ **検索フォームHTMLの構造調査完了**
+  - tmp/extract-special-params.jsで抽出ロジックを実装
+  - tmp/special-params-mappings.jsonに結果を保存
+
+- ✅ **検証結果**:
+  - linkbtn（リンクマーカー）：8件（1,2,3,4,6,7,8,9）、name属性は`linkbtn1`など個別形式
+  - level（レベル/ランク）：14件（0-13）、name属性は`level0`など個別形式
+  - Pscale（ペンデュラムスケール）：14件（0-13）、name属性は`Pscale0`など個別形式
+
+- ✅ **実装との照合完了**
+  - buildSearchParams関数（card-search.ts:313-478）の実装を確認
+  - 全てのパラメータが検索フォームの構造と完全一致
+  - `params.append(\`level\${level}\`, 'on')` - 正しい
+  - `params.append(\`Pscale\${scale}\`, 'on')` - 正しい
+  - `params.append(\`linkbtn\${direction}\`, 'on')` - 正しい
+
+### 結論
+
+**全パラメータの検証が完了しました。全て正しく実装されています。**
+
+検索フォーム分析で抽出したマッピング：
+- species（種族）：26件 - illusion修正済み
+- attr（属性）：7件 - 全て正しい
+- other（モンスタータイプ）：15件 - 全て正しい
+- effe（魔法・罠効果タイプ）：7件 - 全て正しい
+- linkbtn（リンクマーカー）：8件 - 実装が正しい
+- level（レベル/ランク）：14件 - 実装が正しい
+- Pscale（ペンデュラムスケール）：14件 - 実装が正しい
+
+### 過去の問題（解決済み）
+- species（種族）マッピング：ほぼ全て間違っていた → **修正完了**
+- HTMLフォーム分析の不備：ラベルが取得できていなかった → **修正完了**
+
+### アーカイブしたファイル
+- tmp/_archived/search-form-analysis.json（不完全な分析）
+- tmp/_archived/parameter-understanding-analysis.md（不完全な分析に基づく文書）
+- tmp/_archived/analyze-search-form.js（不完全な分析スクリプト）

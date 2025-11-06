@@ -1281,3 +1281,208 @@ const cards = await searchCards({
 - `extension/src/api/card-search.ts`: SearchOptions定義、searchCards実装
 - 型マッピング定義（Attribute, Race, MonsterType, EffectType → API値）
 
+---
+
+## カード検索パラメータマッピングの検証と修正（2025-11-07）
+
+### 実施内容
+
+#### 1. Node.jsからの直接API呼び出し調査用スクリプトの作成 ✅
+- axiosを使用したテストスクリプト作成
+- セッションクッキー不要で動作することを確認
+- tmp/test-api-direct.js, tmp/test-attr-filter.js等を作成
+
+#### 2. 属性マッピングの検証 ✅
+- attr値と実際の属性の対応を全数調査（11-17）
+- 正しいマッピング:
+  - light=11, dark=12, water=13, fire=14, earth=15, wind=16, divine=17
+- 実装は正しいことを確認
+
+#### 3. 種族マッピングの全面修正 ✅
+- species値の全数調査（1-30）
+- **発見**: dragon=1以外、ほぼすべてのマッピングが間違っていた
+- 修正前: warrior=2, spellcaster=15, fairy=12, fiend=11等
+- 修正後: warrior=15, spellcaster=18, fairy=17, fiend=3等
+- 正しいマッピング全27種類を実装
+
+#### 4. モンスタータイプマッピングの検証 ✅
+- other値の検証（0, 1, 2, 3, 8, 9, 10, 15, 17）
+- すべてのマッピングが正しいことを確認
+- normal=0, effect=1, fusion=2, ritual=3, synchro=9, xyz=10, link=17等
+
+#### 5. HTML構造調査 ✅
+- 問題発見: `class="t_row"`で完全一致検索していたが、実際は`class="t_row c_normal open"`
+- 正規表現を`/class="t_row[^"]*"/g`に修正
+- CSSセレクター`.t_row`は問題なし（class名で始まる要素を選択）
+
+### 修正ファイル
+- `extension/src/api/card-search.ts`:
+  - RACE_TO_SPECIES_VALUE の全面修正
+  - 正しい種族マッピング27種類を実装
+
+### 成果物
+- tmp/test-api-direct.js: Node.jsから直接APIテスト
+- tmp/test-attr-filter.js: 属性フィルタテスト
+- tmp/investigate-attr-mapping.js: 属性マッピング調査
+- tmp/investigate-all-species.js: 全種族マッピング調査
+- tmp/test-monster-type.js: モンスタータイプテスト
+
+### 技術的発見
+1. axiosを使えばNode.jsから直接APIを叩ける（セッションクッキー不要）
+2. ブラウザとNode.jsで同じ実装（axios）を共有可能
+3. 属性マッピングは正しかったが、種族マッピングはほぼ全滅
+4. HTML構造の微妙な違い（class属性の追加値）
+
+### バージョン更新
+- v0.0.1のまま（機能未完成のため）
+
+### 次のステップ
+- 魔法効果タイプマッピングの検証
+- 罠効果タイプマッピングの検証
+- レベル・リンクマーカー等の検証
+
+---
+
+## 検索フォームの正しい分析と全マッピングの検証（2025-11-07 完了）
+
+### 背景
+過去の検索フォーム分析（tmp/search-form-analysis.json）が不完全：
+- value属性は取得したが、ラベルテキストが全て `"label": null`
+- HTMLフォームの基本（value属性とラベルテキストの対応）を正しく抽出していなかった
+- species（種族）マッピングがほぼ全て間違っていた
+
+### 実施内容
+
+#### 1. 検索フォームの正しい分析
+- HTMLの実際の構造を確認：
+  ```html
+  <li class="species_1_ja"><span>
+    魔法使い族
+    <input type="checkbox" name="species" class="none" value="18">
+  </span></li>
+  ```
+- ラベルテキストがinputの**前**にある構造を発見
+- 正規表現を修正して正しく抽出
+
+#### 2. 全パラメータのvalue→label対応を抽出
+- ✅ species（種族）: 26件
+- ✅ attr（属性）: 7件
+- ✅ other（モンスタータイプ）: 15件
+- ✅ effe（魔法・罠効果タイプ）: 7件
+
+#### 3. 現在の実装との照合
+- species（種族）: **illusion が '26' → 正しくは '34'** と発見
+- attr（属性）: 全て正しい
+- other（モンスタータイプ）: 全て正しい
+- effe（効果タイプ）: 全て正しい
+
+#### 4. 修正内容
+- `extension/src/api/card-search.ts`:
+  - `illusion: '26'` → `illusion: '34'` に修正
+  - コメントを削除（全て検証済み）
+
+### 成果物
+- tmp/extract-form-mappings-v2.js: 正しい分析スクリプト
+- tmp/form-mappings.json: 全パラメータのvalue→label対応
+- tmp/search-form.html: 検索フォームHTML（デバッグ用）
+
+### 技術的発見
+1. **HTMLフォームの構造**: ラベルテキストがinputの前にある
+2. **検索フォーム分析の正しい方法**: 正規表現で`ラベルテキスト + input`を抽出
+3. **illusion（幻想魔族）**: species=34（wyrm=26と重複していた）
+
+### 検証結果
+- **全パラメータが正しいことを確認**
+- species, attr, other, effe全てが検索フォームのvalue属性と一致
+- APIテスト結果とも一致
+
+### バージョン更新
+- v0.0.1のまま（まだ機能未完成）
+
+
+---
+
+## 検索パラメータの完全検証完了（2025-11-07 完了）
+
+### 背景
+前回の検索フォーム分析で主要4パラメータ（species, attr, other, effe）を検証したが、
+linkbtn、level、Pscaleは未検証だった。
+
+### 実施内容
+
+#### 1. 特殊な構造を持つパラメータの調査
+検索フォームHTMLを再調査し、これらのパラメータが他と異なる構造を持つことを発見：
+
+- **他のパラメータ（species等）**: 
+  - 単一のname属性（例: `name="species"`）
+  - valueに意味のある値（例: `value="18"`）
+
+- **linkbtn、level、Pscale**: 
+  - 個別のname属性（例: `name="level0"`, `name="level1"`, ...）
+  - valueは `"on"` または数値
+
+#### 2. HTMLの実際の構造
+```html
+<!-- level（レベル/ランク） -->
+<input id="level_0" type="checkbox" name="level0" value="on">
+<input id="level_1" type="checkbox" name="level1" value="on">
+...
+
+<!-- Pscale（ペンデュラムスケール） -->
+<input id="Pscale_0" type="checkbox" name="Pscale0" value="on">
+<label for="Pscale_0"><span>0</span></label>
+...
+
+<!-- linkbtn（リンクマーカー） -->
+<input type="checkbox" id="linkbtn7" name="linkbtn7" value="7">
+<label class="linkbtn7" for="linkbtn7"></label>
+...
+```
+
+#### 3. 抽出結果
+- linkbtn（リンクマーカー）: 8件（1,2,3,4,6,7,8,9）※5は存在しない
+- level（レベル/ランク）: 14件（0-13）
+- Pscale（ペンデュラムスケール）: 14件（0-13）
+
+#### 4. 実装との照合
+`extension/src/api/card-search.ts` の `buildSearchParams` 関数（313-478行）を確認：
+
+```typescript
+// level
+params.append(`level${level}`, 'on');  // ✅ 正しい
+
+// Pscale
+params.append(`Pscale${scale}`, 'on');  // ✅ 正しい
+
+// linkbtn
+params.append(`linkbtn${direction}`, 'on');  // ✅ 正しい
+```
+
+**全て正しく実装されていることを確認！**
+
+### 成果物
+- tmp/extract-special-params.js: 特殊パラメータの抽出スクリプト
+- tmp/special-params-mappings.json: linkbtn、level、Pscaleのマッピング
+
+### 最終結論
+
+**全ての検索パラメータの検証が完了しました：**
+
+| パラメータ | 件数 | 状態 |
+|-----------|------|------|
+| species（種族） | 26件 | ✅ illusion修正済み |
+| attr（属性） | 7件 | ✅ 全て正しい |
+| other（モンスタータイプ） | 15件 | ✅ 全て正しい |
+| effe（魔法・罠効果タイプ） | 7件 | ✅ 全て正しい |
+| linkbtn（リンクマーカー） | 8件 | ✅ 実装が正しい |
+| level（レベル/ランク） | 14件 | ✅ 実装が正しい |
+| Pscale（ペンデュラムスケール） | 14件 | ✅ 実装が正しい |
+
+### 技術的発見
+1. リンクマーカーは9方向だが、5（中央）は存在しない
+2. レベル/ランクは0-13の14段階
+3. ペンデュラムスケールも0-13の14段階
+4. これらのパラメータは `name="param0"` のように番号付きの個別name属性を持つ
+
+### バージョン更新
+- v0.0.1 → v0.0.2（パッチバージョンアップ、illusionマッピングのバグ修正）
