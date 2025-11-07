@@ -78,7 +78,58 @@ await sessionManager.saveDeck(dno, deckData);
 
 ### バージョン更新
 
-- `0.0.7` → `0.1.0` (マイナーバージョンアップ: 内部アーキテクチャの改善)
+- `0.0.7` → `0.0.8` (パッチバージョンアップ: 内部アーキテクチャの改善)
+
+---
+
+## 2025-11-07: fetchからaxiosへの移行
+
+### 実装内容
+
+#### HTTP通信ライブラリの変更
+- **理由**: 以前の調査で、Node.jsとブラウザで同じ実装を共有できるaxiosを使用する方針が決定済み
+- **変更対象**:
+  - `session.ts`: ytkn取得のfetch → axios.get
+  - `deck-operations.ts`: 全てのfetch（GET/POST）→ axios
+    - `createNewDeckInternal`: axios.get
+    - `duplicateDeckInternal`: axios.get
+    - `saveDeckInternal`: axios.post
+    - `deleteDeckInternal`: axios.post
+
+#### 変更の詳細
+
+**Before (fetch)**:
+```typescript
+const response = await fetch(url, {
+  method: 'GET',
+  credentials: 'include'
+});
+if (!response.ok) throw new Error(...);
+const html = await response.text();
+```
+
+**After (axios)**:
+```typescript
+const response = await axios.get(url, {
+  withCredentials: true
+});
+const html = response.data;
+```
+
+### メリット
+
+1. **一貫性**: Node.jsとブラウザで同じコードが使用可能
+2. **簡潔性**: axios.dataで直接レスポンスにアクセス
+3. **エラーハンドリング**: HTTPエラーが自動的に例外として扱われる
+4. **開発効率**: テストスクリプトと本番コードで同じライブラリ
+
+### 依存関係の追加
+
+- `axios` パッケージを`extension/package.json`に追加
+
+### バージョン更新
+
+- なし（まだプロトタイプ/開発初期段階のため0.0.8のまま）
 
 ---
 
