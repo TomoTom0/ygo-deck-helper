@@ -4,6 +4,85 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-07: SessionManagerクラスの実装とリファクタリング
+
+### 実装内容
+
+#### 1. SessionManagerクラスの実装 (session.ts)
+- **目的**: cgidとytknを内部管理し、外部から隠蔽する統一インターフェースの提供
+- **クラス構造**:
+  - Private属性: `cgid: string | null`, `ytknCache: Map<number, string>`
+  - Privateメソッド: `ensureCgid()`, `ensureYtkn(dno)`
+  - Publicメソッド: `createDeck()`, `duplicateDeck()`, `saveDeck()`, `deleteDeck()`, `getCgid()`
+- **機能**:
+  - cgid/ytknの自動取得とキャッシュ管理
+  - デッキ操作の統一インターフェース
+  - 削除成功時の自動キャッシュクリア
+- **エクスポート**: `export const sessionManager = new SessionManager();`
+
+#### 2. deck-operations.tsのリファクタリング
+- **関数リネーム**: 全ての関数に`Internal`サフィックスを追加
+  - `createNewDeck` → `createNewDeckInternal`
+  - `duplicateDeck` → `duplicateDeckInternal`
+  - `saveDeck` → `saveDeckInternal`
+  - `deleteDeck` → `deleteDeckInternal`
+- **JSDocコメント追加**: `@internal SessionManager経由で呼び出すこと`
+- **役割**: SessionManagerから呼び出される実装関数として明確化
+
+#### 3. test-ui/index.tsの更新
+- **ytknボタンの削除**: 単独のytkn取得UIを削除（不要な機能）
+- **インポート変更**: `getCgid, getYtkn` → `sessionManager`
+- **全ハンドラー関数の簡素化**:
+  - `handleCreateDeck()`: 直接 `sessionManager.createDeck()` を呼ぶ
+  - `handleDuplicateDeck()`: 直接 `sessionManager.duplicateDeck(4)` を呼ぶ
+  - `handleDeleteDeck()`: 直接 `sessionManager.deleteDeck(4)` を呼ぶ
+  - `handleSaveDeck()`: 直接 `sessionManager.saveDeck(dno, deckData)` を呼ぶ
+  - `handleGetCgid()`: `sessionManager.getCgid()` を呼ぶ
+- **効果**: cgid/ytkn取得ロジックの削除により、コードが大幅に簡潔化
+
+#### 4. テストファイルの更新
+- **deck-operations.test.ts**: 全てのテスト関数名を`*Internal`に更新
+- **session.test.ts**: 
+  - `getYtkn`テストを削除
+  - `sessionManager.getCgid()`のテストに変更
+  - 後方互換性テストを追加
+
+### アーキテクチャの改善
+
+**Before（問題のあった設計）**:
+```typescript
+// 外部から直接cgid/ytknを取得
+const cgid = await getCgid();
+const ytkn = await getYtkn(dno);
+await saveDeck(cgid, dno, deckData, ytkn);
+```
+
+**After（新しい設計）**:
+```typescript
+// SessionManagerが内部で自動管理
+await sessionManager.saveDeck(dno, deckData);
+```
+
+### メリット
+
+1. **カプセル化**: cgid/ytknが完全に内部実装として隠蔽される
+2. **シンプルなAPI**: 外部コードはセッション情報を意識する必要がない
+3. **パフォーマンス向上**: 自動キャッシュにより不要なfetchを削減
+4. **保守性向上**: セッション管理ロジックが一箇所に集約
+5. **テスタビリティ**: SessionManagerクラスのテストが容易
+
+### 後方互換性
+
+- `getCgid()`関数を維持（deprecatedマーク付き）
+- 既存の`handleGetCgid()`ハンドラーは引き続き動作
+
+### バージョン更新
+
+- `0.0.7` → `0.1.0` (マイナーバージョンアップ: 内部アーキテクチャの改善)
+
+---
+
+
 ## 2025-11-07: デッキレシピ画像作成機能の完成（タイムスタンプ修正、サイドデッキ対応）
 
 ### 実装内容
