@@ -3,7 +3,7 @@
 ## 2025-11-07: デッキレシピ画像作成機能の実装開始
 
 ### 実装フェーズ
-**Phase 1**: 基本機能の実装（型定義、Canvas描画）✅ 完了
+**Phase 1**: 基本機能の実装（型定義、Canvas描画）- 一部保留
 
 ### ブランチ構成
 - `main`: 安定版
@@ -17,7 +17,7 @@
    - ColorVariant
    - CanvasDrawSettings
    - 各種定数（FONT_SETTINGS, CARD_IMAGE_SETTINGS, LAYOUT_CONSTANTS等）
-2. ✅ createDeckRecipeImage()の実装
+2. ✅ createDeckRecipeImage()の基本実装
    - Canvas初期化
    - 背景グラデーション描画
    - デッキ名描画
@@ -27,13 +27,51 @@
 3. ✅ downloadDeckRecipeImage()の実装
    - ファイル名生成
    - ダウンロード実行
-4. ✅ fetchDeckData()の実装
-   - getDeckName(): 新UI/旧UI両対応
-   - getCardImagesFromSection(): #deck_imageからURL取得
-   - getIsPublic(): 公開フラグ取得（仮実装）
-5. ✅ TypeScriptコンパイル確認
+4. ✅ CardBase型にimageUrl追加
+5. ✅ parseDeckPage()にextractCardImageUrls()追加（#deck_imageから画像URL取得）
 
-### 残課題
+### 調査完了（2025-11-07）
+**HTML構造調査の結果**
+1. ✅ デッキ表示ページ（ope=1）のHTML構造を調査
+2. ✅ デッキ編集ページ（ope=2）のHTML構造を確認
+3. ✅ 両者を比較して、どちらから情報を取得すべきか判断
+4. ✅ `#deck_image`の存在箇所を確認
+
+**重要な発見:**
+- **表示ページ（ope=1）にしかない情報**: カード画像URL、サイドデッキ
+- **編集ページ（ope=2）にしかない情報**: デッキメタデータ（name, dno, deck_typeのフォームフィールド）
+- **既存の`parseDeckPage()`の問題**: 編集ページ用なのに`extractCardImageUrls()`で表示ページの構造を想定（矛盾）
+
+**詳細レポート**: `tmp/deck-pages-analysis-report.md`
+
+### 実装方針（決定済み）
+**設計書（docs/design/implementation-design.md）に従って2つの関数を分離:**
+
+1. **`parseDeckDetail()`** - 表示ページ（ope=1）用【新規実装】
+   - カード画像URLを含む完全な情報を取得
+   - デッキレシピ画像作成で使用
+   - セレクタ: `#main`, `#extra`, `#side` の `.image_set`
+
+2. **`parseDeckPage()`** - 編集ページ（ope=2）用【既存、要修正】
+   - フォームフィールドからデータ取得
+   - デッキ編集機能で使用
+   - `extractCardImageUrls()`の呼び出しを削除（編集ページには存在しないため）
+
+### 次のタスク（優先）
+1. **`parseDeckDetail()`の実装**
+   - [ ] 表示ページのHTML構造に基づいて実装
+   - [ ] カード画像URL、カードID、カード名、枚数を抽出
+   - [ ] 型定義はCardBase（imageUrl付き）を使用
+
+2. **`parseDeckPage()`の修正**
+   - [ ] `extractCardImageUrls()`の呼び出しを削除
+   - [ ] ドキュメントコメントで編集ページ専用と明記
+
+3. **`createDeckRecipeImage.ts`の修正**
+   - [ ] 重複している`fetchDeckData()`等を削除
+   - [ ] `parseDeckDetail()`を使用するように変更
+
+### 残課題（Phase 2以降）
 - [ ] カードバック画像の追加と描画
 - [ ] QRコード生成（Phase 3）
 - [ ] getIsPublic()の完全実装
