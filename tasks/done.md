@@ -4,6 +4,40 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-07 21:45: DOM階層を正確に検証・使用するようにパーサーを修正
+
+### 実装内容
+
+#### 問題点
+- `parseSearchResults()` と `parseCardSection()` がDOM階層を考慮せずに `.t_row` を取得していた
+- ユーザーが指摘した正確なDOM階層を使用していなかった
+- 実際のHTMLを取得せずに実装していた
+
+#### 解決策
+1. **デッキ詳細パーサー** (`deck-detail-parser.ts`)
+   - `validateDeckDetailPageStructure()`: `#main980 > #article_body > #deck_detailtext > #detailtext_main` の完全な階層を検証
+   - `parseCardSection()`: `#detailtext_main` を基準に `.t_body.mlist_m/s/t` を取得
+
+2. **検索結果パーサー** (`card-search.ts`)
+   - `parseSearchResults()`: `#main980 > #article_body > #card_list` の階層を検証
+   - `.t_row` 取得前に親要素の存在確認を追加
+
+#### 検証
+- 実際のデッキ表示ページHTML (`tmp/deck-public.html`) で階層を確認
+- 実際の検索結果ページHTML (`tmp/search-results-actual.html`) で階層を確認
+- テストスクリプトで動作確認:
+  - `tmp/test-parser-with-hierarchy.js`: デッキ表示ページから26枚のカードを正しく抽出
+  - `tmp/test-search-parser.js`: 検索結果ページから10枚のカードを正しく抽出
+
+#### DOM階層
+- **デッキ表示**: `#main980 > #article_body > #deck_detailtext > #detailtext_main > .t_body > .t_row`
+- **検索結果**: `#main980 > #article_body > #card_list > .t_row`
+
+#### コミット
+- cb9a136: fix: DOM階層を正確に検証・使用するようにパーサーを修正
+
+---
+
 ## 2025-11-07: デッキレシピ画像作成機能の型設計改善
 
 ### 実装内容
