@@ -4,6 +4,37 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-09 (03:10): CardType型を英語識別子に統一
+
+### 実施内容
+
+1. **型定義の変更**:
+   - `CardType`を日本語文字列（'モンスター' | '魔法' | '罠'）から英語識別子（'monster' | 'spell' | 'trap'）に変更
+   - `src/types/card-maps.ts`に`CARD_TYPE_MAP`と`CARD_TYPE_TEXT_TO_ID`を追加
+   - `src/types/card.ts`のインターフェース定義（MonsterCard, SpellCard, TrapCard）を更新
+
+2. **全ファイルの一括修正**:
+   - `src/api/card-search.ts`: パーサー内のCardType使用箇所を修正
+   - `src/api/deck-operations.ts`: CardType使用箇所を修正
+   - `src/content/card/detector.ts`: CardType使用箇所を修正
+   - `src/content/parser/deck-parser.ts`: CardType使用箇所を修正
+   - `src/content/test-ui/index.ts`: CardType使用箇所を修正
+   - 全テストファイル（`__tests__/`）のCardType literalを修正
+
+3. **動作確認**:
+   - ビルド成功確認（TypeScriptエラー0件）
+   - `tests/combine/parser/`内の全テストを実行して成功確認
+     - card-detail-page.test.ts ✓
+     - card-search.test.ts ✓
+     - deck-detail.test.ts ✓
+     - card-detail.test.ts ✓
+     - card-faq-list.test.ts ✓
+     - faq-detail.test.ts ✓
+
+### 変更理由
+
+言語依存の文字列リテラルを型定義に使用していたため、コードの保守性と拡張性に問題がありました。英語識別子に統一することで、将来的な多言語対応や型安全性の向上を実現しました。
+
 ## 2025-11-09 (06:00): 未実装パーサーの実装完了
 
 ### 実施内容
