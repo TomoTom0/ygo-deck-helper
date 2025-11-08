@@ -4,6 +4,38 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-09 (03:30): DeckType/DeckStyleの内部値化
+
+### 実施内容
+
+1. **型定義の修正**:
+   - `DeckType` → 表示名の型として維持
+   - `DeckTypeValue` → 内部値（"0", "1", "2", "3"）の型として使用
+   - `DeckStyle` → 表示名の型として維持
+   - `DeckStyleValue` → 内部値（"0", "1", "2"）の型として使用
+
+2. **マッピング定数の追加** (`src/types/deck-metadata.ts`):
+   - `DECK_TYPE_LABEL_TO_VALUE`: 表示名→内部値の変換マップ
+   - `DECK_STYLE_LABEL_TO_VALUE`: 表示名→内部値の変換マップ
+
+3. **パーサーの修正**:
+   - `extractDeckType()`: 表示名を取得後、内部値に変換して返却
+   - `extractDeckStyle()`: 表示名を取得後、内部値に変換して返却
+   - `parseDeckListRow()`: デッキ一覧でも同様の変換を実施
+
+4. **DeckInfo/DeckListItem型の修正**:
+   - `deckType`フィールド: `DeckType` → `DeckTypeValue`
+   - `deckStyle`フィールド: `DeckStyle` → `DeckStyleValue`
+
+### 変更理由
+
+- ユーザーの指摘: 「なぜデッキタイプやデッキスタイルなどは種族や属性と違って文字列をそのまま扱うだけでいいんですか？」
+- Race/Attributeと同じパターン（内部ID + マッピング）に統一
+
+### バージョン
+
+- 0.0.10 → 0.0.11（パッチ: バグ修正）
+
 ## 2025-11-09 (02:00): 新API動作確認完了（Phase 1）
 
 ### 実施内容
