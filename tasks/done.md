@@ -4,6 +4,43 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-09 (05:00): パーサー動作確認テスト作成完了
+
+### 実施内容
+
+1. **tests/combine/parser/ディレクトリの作成**:
+   - パーサーテスト用のディレクトリを新規作成
+
+2. **実装済みパーサーのテストファイル作成**:
+   - `deck-detail.test.ts` - デッキ詳細パーサーのテスト
+     - parseDeckDetail関数の動作確認
+     - 結果: ✓ 成功（26 mainDeck, 14 extraDeck, 0 sideDeck）
+   - `card-search.test.ts` - カード検索結果パーサーのテスト
+     - parseSearchResultRow + extractImageInfo関数の動作確認
+     - 結果: ✓ 成功（10枚のモンスターカードをパース）
+
+3. **カード検索結果HTMLの再取得**:
+   - 当初のHTMLが検索フォームページだったため、実際の検索結果ページを再取得
+   - キーワード: ブラック・マジシャン
+   - サイズ: 214KB → 285KB
+
+4. **README.md作成**:
+   - テストの実行方法と対象ファイルの説明を記載
+   - 未実装パーサー（card-detail, card-faq-list, faq-detail）の情報も記載
+
+### 検証結果
+
+全ての実装済みパーサーが正常に動作することを確認：
+- デッキ詳細パーサー: ✓ 正常動作
+- カード検索結果パーサー: ✓ 正常動作
+
+### 実行方法
+
+```bash
+npx tsx tests/combine/parser/deck-detail.test.ts
+npx tsx tests/combine/parser/card-search.test.ts
+```
+
 ## 2025-11-09 (04:15): テストデータHTML取得完了
 
 ### 実施内容
