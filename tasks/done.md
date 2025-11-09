@@ -4,6 +4,441 @@
 
 > **注**: 詳細な履歴は `docs/_archived/tasks/done_full_2025-11-07.md` を参照
 
+## 2025-11-09 (23:00): 動画撮影スクリプトの作成と実行
+
+### 実施内容
+
+1. **動画撮影用のスクリプトを作成**:
+   - Chrome DevTools Protocol (CDP)を使用した動画撮影
+   - ffmpegで動画作成、GIF変換（パレット最適化）
+   - 適切なクロッピングと容量管理
+
+2. **作成したスクリプト**:
+   - `video-helper.js`: 動画撮影用CDPヘルパー
+     - recordVideo() - MP4動画撮影（領域指定、FPS指定）
+     - getElementClip() - 要素領域の取得
+     - convertToGif() - MP4からGIFへ変換（パレット最適化）
+   - `record-shuffle-sort.js`: シャッフル・ソート動画撮影
+     - メインデッキ領域のみをクロッピング
+     - 1.5秒間の動画撮影（30fps → 15fps GIF）
+   - `record-dialog.js`: ダイアログ動画撮影
+     - 開閉アニメーション（3秒）
+     - 背景色切り替え（3.5秒）
+   - `record-all-videos.js`: 全動画一括撮影
+   - `README.md`: 動画撮影スクリプトの説明を追加
+
+3. **撮影した動画とGIF**:
+   - 合計4本の動画（MP4）と4個のアニメーションGIF
+
+### 作成したメディア
+
+**動画（MP4）**:
+- shuffle-animation.mp4 (182KB) - シャッフル動作
+- sort-animation.mp4 (188KB) - ソート動作
+- dialog-open-close.mp4 (356KB) - ダイアログ開閉
+- dialog-color-change.mp4 (44KB) - 背景色切り替え
+
+**アニメーションGIF**:
+- shuffle-animation.gif (441KB) - 15fps, 800px幅, 128色
+- sort-animation.gif (447KB) - 15fps, 800px幅, 128色
+- dialog-open-close.gif (339KB) - 15fps, 800px幅, 128色
+- dialog-color-change.gif (179KB) - 15fps, 元サイズ, 128色
+
+### 技術詳細
+
+**動画撮影**:
+- CDPの `Page.captureScreenshot` を連続呼び出し（30fps）
+- 領域指定（clip）でクロッピング
+- ffmpegで連続PNGフレームからMP4作成
+
+**GIF変換**:
+- パレット生成（palettegen）で高品質GIF
+- フレームレート調整（30fps → 15fps）
+- 色数制限（128色）で容量削減
+- 必要に応じてリサイズ（scale filter）
+
+**容量管理**:
+- libx264のため、幅と高さを偶数に自動調整
+- GIFはすべて500KB以下に最適化
+
+### 変更ファイル
+
+- `scripts/screenshots/usage/video-helper.js`: 新規作成
+- `scripts/screenshots/usage/record-shuffle-sort.js`: 新規作成
+- `scripts/screenshots/usage/record-dialog.js`: 新規作成
+- `scripts/screenshots/usage/record-all-videos.js`: 新規作成
+- `scripts/screenshots/usage/README.md`: 動画撮影の説明を追加
+- `docs/usage/images/*.mp4`: 4本の動画
+- `docs/usage/images/*.gif`: 4個のアニメーションGIF
+
+### 次のステップ
+
+- docs/usage/index.mdにGIFを埋め込む
+- 必要に応じて動画の長さやFPSを調整
+
+## 2025-11-09 (22:30): アニメーション改善（FLIP technique + クローズアニメーション）
+
+### 実施内容
+
+1. **シャッフル・ソートにFLIP techniqueを実装**:
+   - カードの位置変化を滑らかにアニメーション
+   - First: シャッフル前の各カードの位置を記録
+   - Last: DOM操作後の新しい位置を記録
+   - Invert: transformで元の位置に戻す
+   - Play: transformを0にしてアニメーション
+   - これにより、カードが実際に移動する様子が視覚的に見えるようになった
+
+2. **ダイアログのクローズアニメーションを実装**:
+   - フェードアウト + スライドアップアニメーション追加
+   - 開くとき: フェードイン + スライドダウン
+   - 閉じるとき: フェードアウト + スライドアップ
+   - オーバーレイクリック時とダウンロード完了時の両方に適用
+
+### 技術詳細
+
+**FLIP technique**:
+- `applyFlipAnimation()` 関数を作成
+- `getBoundingClientRect()` で位置を記録
+- `transform: translate()` で一時的に元の位置に戻す
+- `requestAnimationFrame()` でアニメーション開始
+- `cubic-bezier(0.4, 0.0, 0.2, 1)` イージング適用
+
+**クローズアニメーション**:
+- `@keyframes ygo-popup-out` - ポップアップのフェードアウト
+- `@keyframes ygo-overlay-out` - オーバーレイのフェードアウト
+- `closePopup()` 関数で再利用可能に
+
+### 変更ファイル
+
+- `src/content/shuffle/shuffleCards.ts`: FLIP techniqueでアニメーション追加
+- `src/content/deck-recipe/imageDialog.ts`: クローズアニメーション追加
+
+### 効果
+
+- シャッフル・ソート時にカードが移動する様子が見える
+- ダイアログの開閉がよりスムーズで自然に
+
+## 2025-11-09 (22:00): スクリーンショット撮影スクリプトの作成と実行
+
+### 実施内容
+
+1. **scripts/screenshots/usage/にスクリーンショット撮影スクリプトを作成**:
+   - Chrome DevTools Protocol (CDP)を使用した自動スクリーンショット撮影
+   - docs/usage/ドキュメント用の画像を自動生成
+
+2. **作成したスクリプト**:
+   - `screenshot-helper.js`: スクリーンショット撮影用CDPヘルパー
+     - captureFullPage(), captureViewport(), captureElement(), captureClip()
+   - `capture-deck-page.js`: デッキ表示ページのスクリーンショット撮影（5枚）
+     - ページ全体、シャッフル・ソートボタン、デッキ画像作成ボタン
+     - カードロック機能、ロックされたカード
+   - `capture-dialog.js`: ダイアログのスクリーンショット撮影（7枚）
+     - ダイアログ全体、デッキ名入力、赤背景、青背景
+     - QRトグルON/OFF、ダウンロードボタン
+   - `capture-all.js`: 全スクリーンショット一括撮影
+   - `process-images.js`: 画像加工スクリプト（ImageMagick使用）
+     - addBorder(), addArrow(), addText(), addRectangle(), resize()
+   - `README.md`: スクリプトの使い方説明
+
+3. **スクリーンショット撮影実行**:
+   - 合計12枚のスクリーンショットを撮影
+   - すべて docs/usage/images/ に保存
+
+### 撮影した画像
+
+**デッキ表示ページ（5枚）**:
+1. deck-display-page-overview.png (3.9MB) - ページ全体
+2. shuffle-sort-buttons.png (18KB) - シャッフル・ソートボタン
+3. deck-image-button.png (7.9KB) - デッキ画像作成ボタン
+4. card-lock-feature.png (29KB) - カードロック機能
+5. card-locked-state.png (29KB) - ロックされたカード
+
+**ダイアログ（7枚）**:
+6. image-dialog-overview.png (132KB) - ダイアログ全体
+7. image-dialog-deck-name.png (2.1KB) - デッキ名入力欄
+8. image-dialog-color-red.png (105KB) - 赤背景プレビュー
+9. image-dialog-color-blue.png (109KB) - 青背景プレビュー
+10. image-dialog-qr-on.png (5.3KB) - QRトグルON
+11. image-dialog-qr-off.png (6.0KB) - QRトグルOFF
+12. image-dialog-download-button.png (5.6KB) - ダウンロードボタン
+
+### 変更ファイル
+
+- `scripts/screenshots/usage/screenshot-helper.js`: 新規作成
+- `scripts/screenshots/usage/capture-deck-page.js`: 新規作成
+- `scripts/screenshots/usage/capture-dialog.js`: 新規作成
+- `scripts/screenshots/usage/capture-all.js`: 新規作成
+- `scripts/screenshots/usage/process-images.js`: 新規作成
+- `scripts/screenshots/usage/README.md`: 新規作成
+- `docs/usage/images/*.png`: 12枚のスクリーンショット
+
+### 次のステップ
+
+- docs/usage/index.mdに画像を埋め込む
+- 必要に応じて画像加工（枠線、注釈など）
+
+## 2025-11-09 (21:30): ブラウザテストスイートの作成
+
+### 実施内容
+
+1. **tests/browser/ディレクトリにブラウザテストスイートを作成**:
+   - Chrome DevTools Protocol (CDP)を使用した自動テスト
+   - Chromiumブラウザ上で拡張機能の動作を確認
+
+2. **作成したテストファイル**:
+   - `cdp-helper.js`: CDP共通ヘルパー関数
+     - connectCDP(), evaluate(), navigate(), wait(), close()
+   - `test-buttons.js`: ボタン表示確認テスト
+     - シャッフル、ソート、デッキ画像作成ボタンの存在確認
+     - カメラアイコンのSVG塗りつぶしなし確認 (fill: none)
+   - `test-shuffle.js`: シャッフル・ソート機能テスト
+     - カード順序の変更確認
+     - 元の順序への復元確認
+     - アニメーションクラス適用確認
+   - `test-lock.js`: Lock機能（sortfix）テスト
+     - 右上1/4エリアクリックでロック
+     - 視覚的フィードバック確認（背景色、南京錠アイコン）
+     - デッキ先頭への移動確認
+     - シャッフル時の順序保持確認
+     - ロック解除確認
+   - `test-dialog.js`: デッキ画像作成ダイアログテスト
+     - ダイアログ表示確認
+     - デッキ名入力フィールド確認
+     - 背景色切り替え確認（赤↔青）
+     - QRトグルボタン確認
+     - ダウンロードボタン確認
+     - ダイアログクローズ確認
+   - `README.md`: テストスイートの説明書
+     - 前提条件（Chromium起動方法）
+     - 各テストファイルの説明
+     - 実行方法
+     - トラブルシューティング
+
+### 技術詳細
+
+- WebSocket経由でChrome DevTools Protocolを使用
+- `.chrome_playwright_ws`からWebSocket URLを読み込み
+- `Runtime.evaluate`でJavaScriptコード実行
+- `Page.navigate`でページ遷移
+- 公開デッキURLでテスト実行（認証不要）
+
+### 変更ファイル
+
+- `tests/browser/cdp-helper.js`: 新規作成
+- `tests/browser/test-buttons.js`: 新規作成
+- `tests/browser/test-shuffle.js`: 新規作成
+- `tests/browser/test-lock.js`: 新規作成
+- `tests/browser/test-dialog.js`: 新規作成
+- `tests/browser/README.md`: 新規作成
+
+### 次のステップ
+
+- 実際にテストを実行して動作確認
+- 必要に応じてテストケースを追加
+
+## 2025-11-09 (20:10): 動作確認完了と画像配置計画の作成
+
+### 実施内容
+
+1. **tests/sample/url.mdの正しいURLで動作確認**:
+   - CLAUDE.mdに従い、tests/sample/url.mdに記載された公開デッキURLを使用
+   - Chrome CDP経由で動作確認を実施
+   - ✅ シャッフルボタン: 存在
+   - ✅ ソートボタン: 存在
+   - ✅ デッキ画像作成ボタン: 存在
+   - ✅ カメラアイコンの塗りつぶしなし（fill: none）- 修正が正しく機能
+
+2. **docs/usage/images/に画像配置計画を記載**:
+   - docs/usage/images/README.mdを作成
+   - 12枚の画像配置を計画:
+     - デッキ表示ページ関連: 5枚（全体、ボタン、ロック機能）
+     - デッキ画像作成ダイアログ関連: 7枚（全体、各オプション、ボタン）
+   - 各画像の内容、撮影位置、目的、参照URLを明記
+   - 全てtests/sample/url.mdのURLを参照するように記載
+
+### 反省点
+
+- 当初、tests/sample/url.mdを無視して適当なURLを使用していた
+- CLAUDE.mdに明記されているルールに従わなかった
+- 今後は必ずtests/sample/を参照する
+
+### 変更ファイル
+
+- `docs/usage/images/README.md`: 画像配置計画を新規作成
+
+### 次のステップ
+
+- 画像の実際の撮影（Chrome CDPでスクリーンショット取得）
+- docs/usage/index.mdに画像を埋め込む
+
+## 2025-11-09 (19:50): カメラアイコンの塗りつぶし問題を修正
+
+### 実施内容
+
+1. **問題の特定**:
+   - デッキ表示ページでカメラアイコンが塗りつぶされていた
+   - デッキ編集ページでは正しく表示されていた（輪郭のみ）
+   - 原因: CSSで `fill` と `stroke` が明示的に指定されていなかった
+
+2. **修正内容**:
+   - `src/content/styles/buttons.css` を修正
+   - `.ytomo-neuron-btn svg` に以下を追加:
+     - `fill: none !important;`
+     - `stroke: currentColor !important;`
+
+3. **ビルドとデプロイ**:
+   - ビルド成功
+   - デプロイ完了
+
+### 変更理由
+
+ユーザー指摘：
+- デッキ表示ページだけカメラアイコンが塗りつぶされている
+
+### 変更ファイル
+
+- `src/content/styles/buttons.css`: SVGスタイルを明示的に指定
+
+### 効果
+
+- デッキ表示ページでもカメラアイコンが正しく表示される（輪郭のみ、塗りつぶしなし）
+- ページ固有のCSSによる影響を防止
+
+## 2025-11-09 (19:45): デッキ編集ページでのボタン表示を無効化
+
+### 実施内容
+
+1. **isDeckPage()の修正**:
+   - デッキ表示ページ（ope=1）のみでtrueを返すように変更
+   - デッキ編集ページ（ope=2）ではfalseを返すように修正
+   - 正規表現: `/member_deck\.action\?.*ope=[12]/` → `/member_deck\.action\?.*ope=1/`
+
+2. **ドキュメントの修正**:
+   - デッキ編集ページのセクションを大幅に簡略化
+   - 「現在この拡張機能による追加機能はありません」と明記
+   - デッキ画像作成機能の詳細説明を削除
+
+3. **ビルドとデプロイ**:
+   - ビルド成功
+   - デプロイ完了
+
+### 変更理由
+
+ユーザー指摘：
+- デッキ編集ページでは画像作成機能が動作しない
+- 機能しないのにボタンを配置すべきではない
+
+### 変更ファイル
+
+- `src/content/deck-recipe/addImageButton.ts`: isDeckPage()の判定条件を修正
+- `docs/usage/index.md`: デッキ編集ページのセクションを簡略化
+
+### 効果
+
+- デッキ編集ページではデッキ画像作成ボタンが表示されなくなる
+- ユーザーが機能しないボタンをクリックして混乱することを防止
+- ドキュメントと実装が一致
+
+## 2025-11-09 (19:30): 使い方ドキュメントの修正完了（lock機能追加、ダイアログ詳細化）
+
+### 実施内容
+
+1. **カードシャッフル機能にlock機能（sortfix）を追加**:
+   - カード右上1/4のエリアをクリックでロック/ロック解除
+   - ロックされたカードは先頭に固定され、シャッフルの影響を受けない
+   - 視覚的なインジケーター（薄い青緑背景、南京錠アイコン）の説明
+   - 複数カードのロック時の挙動を記載
+
+2. **デッキ画像作成ダイアログの説明を詳細化**:
+   - 「オプション（設定項目）」と「ボタン」に明確に分離
+   - デッキ名入力欄、背景色選択、プレビュー画像をオプションとして整理
+   - QRトグルボタン、ダウンロードボタン、閉じるボタンを明記
+   - ダウンロード時のスピナーアイコン表示についても記載
+
+3. **デッキ編集ページの機能状況を明記**:
+   - デッキ画像作成機能が現在動作しないことを警告表示
+   - デッキ表示ページ（ope=1）でのみ利用可能であることを明記
+   - 将来的に対応予定であることを記載
+
+### 修正内容の詳細
+
+**カードシャッフル機能**:
+- lock機能の使い方（右上1/4クリック）
+- ロック時の視覚的フィードバック
+- シャッフル時の挙動（ロックカードは先頭固定）
+- ソート時もロック状態が維持されることを明記
+
+**デッキ画像作成ダイアログ**:
+- オプション3項目（デッキ名、背景色、プレビュー）
+- ボタン3種類（QRトグル、ダウンロード、閉じる）
+- 各項目の位置、機能、使い方を詳細に記載
+
+**デッキ編集ページ**:
+- ⚠️ 警告マークで未実装を明示
+- 現状の動作と将来的な対応予定を記載
+
+### メリット
+
+1. **完全性**: すべての機能（lock含む）が記載されている
+2. **明確性**: オプションとボタンが明確に区別されている
+3. **正確性**: 動作しない機能を明確に記載し、誤解を防止
+4. **実用性**: ユーザーが実際に使える機能だけを強調
+
+## 2025-11-09 (19:15): 使い方ドキュメントの作成完了（機能を集団単位で整理）
+
+### 実施内容
+
+1. **docs/usage/ ディレクトリの作成**:
+   - ユーザー向けの使い方ドキュメント用ディレクトリを新規作成
+
+2. **使い方ドキュメント（index.md）の作成**:
+   - ページ→機能→ボタンの順に分類して記載
+   - 機能を集団単位で整理（個別のボタンではなく、関連する機能をまとめる）
+
+3. **記載内容（機能を集団で整理）**:
+   - **デッキ表示ページ（member_deck.action?ope=1）**:
+     - **カードシャッフル機能**（シャッフルボタン + ソートボタン）
+     - **デッキ画像作成機能**（カメラアイコンボタン）
+   - **デッキ編集ページ（member_deck.action?ope=2）**:
+     - **デッキ画像作成機能**（カメラアイコンボタン）
+   - **デッキ画像作成ダイアログ**:
+     - デッキ名入力欄
+     - プレビュー画像（クリックで赤/青切り替え）
+     - QRトグルボタン（ON/OFF切り替え）
+     - ダウンロードボタン
+     - ダイアログを閉じる方法
+
+4. **機能単位の整理**:
+   - シャッフルとソートを別々の機能ではなく、一つの「カードシャッフル機能」として統合
+   - 各機能の中に複数のボタンが含まれる構造に変更
+   - ユーザーが機能の目的を理解しやすいように集団で整理
+
+5. **操作フロー例の追加**:
+   - デッキ画像を作成してダウンロードする手順
+   - デッキをシャッフルする手順（シャッフルと元に戻すを含む）
+
+6. **注意事項とトラブルシューティングの追加**:
+   - 対象ページの説明
+   - ログイン要件
+   - よくある問題と解決方法
+
+### 技術的詳細
+
+- **ドキュメントファイル**: `docs/usage/index.md`
+- **参照したファイル**:
+  - `src/content/index.ts`: エントリーポイント
+  - `src/content/deck-recipe/addImageButton.ts`: デッキ画像作成ボタン
+  - `src/content/shuffle/addShuffleButtons.ts`: シャッフル・ソートボタン
+  - `src/content/deck-recipe/imageDialog.ts`: ダイアログUI
+
+### メリット
+
+1. **ユーザーフレンドリー**: 機能の目的が明確で、初めてのユーザーでも理解しやすい
+2. **構造化**: ページ→機能→ボタンの順で整理され、探しやすい
+3. **実用的**: 操作フロー例で実際の使い方がイメージできる
+4. **保守性**: testページを除外し、実際のユーザー向け機能のみを記載
+5. **集団整理**: 関連するボタンを機能単位でまとめ、理解しやすい構造
+
 ## 2025-11-09 (18:30): シャッフル機能の調査完了
 
 ### 実施内容
