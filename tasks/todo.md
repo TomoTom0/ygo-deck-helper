@@ -20,16 +20,17 @@
 **テスト計画書**: tmp/wip/test-plan-v0.3.0.md
 
 #### フェーズ1: 単体テスト（優先度：高）
-- [ ] テスト環境セットアップ
-  - [ ] tests/unit/ディレクトリ作成
-  - [ ] package.jsonにテストスクリプト追加
-- [ ] language-detector.test.ts
-  - [ ] #nowlanguage要素から検出
-  - [ ] meta og:url/URLパラメータから検出
-  - [ ] デフォルト値確認
-- [ ] mapping-manager.test.ts
-  - [ ] 日本語/英語マッピング
-  - [ ] エラーハンドリング
+- [x] テスト環境セットアップ
+  - [x] tests/unit/ディレクトリ作成
+  - [x] package.jsonにテストスクリプト追加
+- [x] language-detector.test.ts（9tests ✅）
+  - [x] #nowlanguage要素から検出
+  - [x] meta og:url/URLパラメータから検出
+  - [x] デフォルト値確認
+  - [x] 優先順位確認
+- [x] mapping-manager.test.ts（16tests ✅）
+  - [x] 日本語/英語マッピング
+  - [x] エラーハンドリング（フォールバック）
 - [ ] deck-edit.test.ts
   - [ ] カード追加/削除/移動
   - [ ] 枚数制限チェック
