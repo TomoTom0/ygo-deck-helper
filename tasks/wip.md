@@ -39,12 +39,17 @@
    - card-detail-tabsの幅を親要素に合わせて調整
 
 ### 現在対応中のバグ・課題
-1. ⏳ 機能実装
-   - カード画像左上のInfoボタン表示（ホバー時）
-   - Infoボタン押下でCard tabに切り替え
-   - Card tab内のInfo/QA/Related/Productsサブタブ
-   - カード移動時のアニメーション
-   - .menu_btn_pagetop の非表示（`display: none`をスタイル注入）
+1. ⏳ UI改善と翻訳
+   - ✅ infoタブのカード画像サイズ調整（100px）
+   - ✅ 属性・種族・effectTypeの日本語表示
+   - ✅ Q&A展開/折りたたみ機能
+   - ✅ レアリティバッジの色表示
+   - ✅ relatedタブのsort/list/grid/順次読み込み
+   - ✅ ボタン色分け（info:オレンジ、link:水色、M/E:青、S:紫）
+   - ⏳ tuner/effectの日本語表示（内部値のまま）
+   - ⏳ カード変更時のQA展開状態リセット
+   - ⏳ QA折りたたみ時の自動スクロール調整
+   - ⏳ Productsタブの展開機能（パック内カード一覧）
 
 ### 残課題
 - ⏭️ Load時のデッキ情報反映確認
