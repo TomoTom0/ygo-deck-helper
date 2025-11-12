@@ -72,9 +72,10 @@
 
 ### PR#2レビュー対応（2025-11-13）
 #### High Priority
-- [ ] card-search.ts: request_localeのハードコード修正
-  - getCardDetailに言語引数を追加
+- ✅ card-search.ts: request_localeのハードコード修正
+  - getCardDetailに言語引数を追加（省略時は自動検出）
   - detectLanguageユーティリティの活用
+  - deck-operations.tsの全API呼び出しも対応
 
 #### Medium Priority
 - ✅ .gitignoreに.drawio.dtmpを追加
@@ -82,8 +83,10 @@
 - ✅ console.log削除（DeckCard.vue, CardList.vue）
 - ✅ deck-operations.ts: コメントアウトコード削除
 - ✅ CardList.vue: scrollToTopをemitベースに変更
-- [ ] RightArea.vue: 無限スクロール実装改善
+- [ ] RightArea.vue: 無限スクロール実装改善（最適化タスク）
 - ✅ deck-edit.ts: sortDisplayOrderForOfficialにコメント追加
+
+**全てのレビュー対応完了！**（無限スクロール改善は最適化タスクとしてpending.mdへ）
 
 ### 現在対応中のバグ・課題
 1. ✅ UI改善と翻訳
