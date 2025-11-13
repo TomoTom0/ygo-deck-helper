@@ -29,12 +29,12 @@
 
 ---
 
-## 🚀 v0.3.0 リリースタスク（優先度：最高）
+## v0.3.0 リリースタスク（優先度：最高）
 
 **目標日**: 2025-11-17  
 **現在**: ドキュメント修正中 - スクリーンショット追加必要
 
-### 🔴 ブロッカー: ドキュメント修正
+### ブロッカー: ドキュメント修正
 
 #### ドキュメント構造修正 ✅
 - [x] README.md: デッキ画像サンプルをダイアログではなく実際の出力画像に変更
@@ -50,7 +50,7 @@
   - [x] Deck Edit Settings タブを追加
   - [x] 画像を public/images/ に配置
 
-#### スクリーンショット追加必要（手動）📸
+#### スクリーンショット追加必要（手動）
 - [ ] `docs/usage/images/options-page.png` - オプションページ全体
 - [ ] `docs/usage/images/deck-edit-demo.gif` - デッキ編集UIのデモ（オプション）
   
@@ -82,13 +82,15 @@
 - [x] DeckEditSettings型定義とユーティリティ関数
 
 #### 4. リリース準備
-- [ ] バージョン更新（version.dat, manifest.json, package.json → 0.3.0）
-- [ ] CHANGELOG作成
+- [x] バージョン更新（version.dat, manifest.json, package.json → 0.3.0）
+- [x] CHANGELOG作成（docs/changelog/v0.3.0.md, docs/changelog/index.md）
+- [x] ドキュメント絵文字削除（changelog/index.md, changelog/v0.3.0.md）
+- [x] オプションページに独自デッキ編集画面の画像追加（3枚）
 - [ ] 最終動作確認（Chrome/Edge）
 
 ---
 
-## 🌐 Phase 3完了内容（参考）
+## Phase 3完了内容（参考）
 
 ### 1. 言語差異の調査（優先度: 最高）
 
