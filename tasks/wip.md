@@ -1,102 +1,178 @@
 # 作業中のタスク
 
-## v0.3.2開発
+## v0.4.0開発 - Phase 1: 基盤整備
 
-### リリース状況
-- **v0.3.0**: ✅ リリース済み
-- **v0.3.1**: ✅ リリース済み
-- **v0.3.2**: ✅ 開発完了（milestone.md要件全達成）
+### 開発状況
+- **ブランチ**: `feature/v0.4.0-foundation`
+- **ベースブランチ**: `dev`
+- **開始日**: 2025-11-15
+- **現在のバージョン**: 0.3.2 → 0.4.0開発中
 
 ### 現在の進捗
-- **バージョン**: 0.3.2
-- **単体/結合テスト**: 106 tests合格（combine 17 + component 89 | 3 skipped）
-  - ⚠️ API tests/deck-parser tests/session testは要修正（主要機能は動作確認済み）
-- **E2Eテスト**: ✅ 全9テスト合格
-  - ファイル: `tmp/browser/e2e-full-suite-corrected.js`
-  - テスト内容: DNOロード、デッキクリア、検索、追加、削除、枚数制限、ゴミ箱復元、エクストラ/サイドデッキ操作
-- **ビルド・デプロイ**: ✅ 完了
 
-### 完了した作業（milestone.md v0.3.2要件）
+#### 完了した作業
+- [x] v0.4.0実装順序の計画策定
+- [x] 現状の実装状況調査
+- [x] 調査結果のドキュメント化（`tmp/wip/v0.4.0-investigation.md`）
+- [x] ブランチ作成（`feature/v0.4.0-foundation`）
 
-#### 1. ポップアップから独自デッキ編集画面に移動 ✅
-- [x] popup UIの実装完了（src/popup/index.ts）
-- [x] デッキ編集画面ボタンで `#/ytomo/edit` を開く
+#### 現在の作業: Phase 1 - 基盤整備
 
-#### 2. URLパラメータでdno指定 ✅
-- [x] `src/stores/deck-edit.ts`でURLパラメータから`dno`取得実装済み
-- [x] 例: `#/ytomo/edit?dno=8` でDNO 8のデッキを自動ロード
+**目標:** URLパラメータ、画像サイズ、テーマ、言語切り替えの基盤実装
 
-#### 3. 拡張機能名の統一 ✅
-- [x] "YuGiOh Neuron **EXTension**" に統一（正しい英語スペル）
-- [x] 修正ファイル:
-  - src/popup/index.ts
-  - src/options/App.vue
-  - tasks/milestone.md
-  - docs/changelog/index.md
-  - docs/usage/README.md
-  - README.md
+##### 1. USPでの制御と再現（優先度：最高）
 
-#### E2Eテストスイート完全修正 ✅
-- [x] Test 1: DNOダイアログからデッキロード（MouseEvent対応）
-- [x] Test 2: デッキクリア
-- [x] Test 3: カード検索（インライン実装、待機時間延長）
-- [x] Test 4: カード追加
-- [x] Test 5: カード削除
-- [x] Test 6: カード枚数制限（.focus()追加、エラーハンドリング改善）
-- [x] Test 7: ゴミ箱復元
-- [x] Test 8: エクストラデッキ操作
-- [x] Test 9: サイドデッキ操作
+**目的:** 画面の全状態をURLパラメータで再現可能にする
 
-**重要な発見**:
-- Vue 3の`@click`ハンドラーはMouseEventが必須
-- `Page.reload`の方が`Page.navigate`より安定
-- ダイアログボタンもMouseEvent必須
-- インライン実装の方がヘルパー関数より安定
+**現状:**
+- ✅ `dno`パラメータのみ実装済み（デッキ番号指定）
 
-### 次のステップ: v0.3.2リリース準備
+**必要な作業:**
+- [ ] URLパラメータ仕様の設計
+  - 表示モード（list/grid）
+  - ソート順
+  - カードタブ（info/qa/related/products）
+  - 画像サイズ（small/medium/large/llarge）
+  - テーマ（dark/light/system）
+  - 言語（auto/ja/en/ko/...）
+  - フィルター条件
+- [ ] 双方向同期の実装（状態↔URL）
+- [ ] 各機能との連携
+- [ ] テスト作成
 
-#### 1. バージョン更新（必須）
-- [ ] public/manifest.json: 0.3.1 → 0.3.2
-- [ ] package.json: 0.3.1 → 0.3.2
-- [ ] README.md: バージョン表記更新
-
-#### 2. CHANGELOG・リリースノート作成（必須）
-- [ ] docs/changelog/v0.3.2.md作成
-  - E2Eテストスイート修正（全9テスト合格）
-  - 拡張機能名の統一（EXTension表記）
-  - milestone.md v0.3.2要件達成（popup実装、URL params対応）
-- [ ] docs/changelog/index.mdに追加
-
-#### 3. 最終動作確認（必須）
-- [ ] popup動作確認（デッキ編集画面ボタン）
-- [ ] デッキ編集画面動作確認
-- [ ] URLパラメータ?dno=8でロード確認
-
-#### 4. Git管理（必須）
-- [ ] git push（origin/devに12コミット分をプッシュ）
-- [ ] v0.3.2タグ作成（git tag v0.3.2）
-- [ ] ビルド・デプロイ（最終版）
+**関連ファイル:**
+- `src/stores/deck-edit.ts`
+- `src/stores/settings.ts`（新規作成予定）
 
 ---
 
-### 今後の機能追加（v0.4.0以降）
+##### 2. 画像大きさ変更オプション（優先度：高）
 
-#### Phase 4: 独自デッキ編集画面実装（milestone.md）
-- [ ] 検索チャットでの高度な操作（絞り込み、デッキ内の画像表示）
-- [ ] デッキメタデータの編集
-- [ ] loadダイアログでの画像を含めた実用的な表示
-- [ ] デッキ編集画面でシャッフル、ソート、スクショボタン追加
-- [ ] 画像大きさ変更オプション（small/medium/large/llarge）
-- [ ] uspでの制御と再現
-- [ ] 禁止制限順守確認on/off
-- [ ] import/export（csv, json, png）
-- [ ] カラーテーマ選択（ダーク、ライト、システム）
-- [ ] 言語を拡張機能内メニューから変更
+**目的:** 4段階の画像サイズ切り替えを実装
 
-#### E2Eテスト追加
-- [ ] ドラッグ＆ドロップ
-- [ ] デッキ保存
-- [ ] 収録パック展開・折りたたみ
+**現状:**
+- デッキセクション: 36px × 53px（固定）
+- リスト表示: 36px幅
+- グリッド表示: 60px幅
 
-#### その他
-- [ ] 拡張UI自体の多言語化（現在は英語/日本語混在）
+**v0.4.0の要件:**
+- small（36px）
+- medium（60px）
+- large（未定義、要検討）
+- llarge（未定義、要検討）
+
+**必要な作業:**
+- [ ] 設定ストアの作成（`src/stores/settings.ts`）
+- [ ] CSS変数の定義（`--card-width`, `--card-height`）
+- [ ] 各コンポーネントでCSS変数を使用するよう修正
+  - `src/components/DeckCard.vue`
+  - `src/components/CardList.vue`
+  - `src/components/CardInfo.vue`
+- [ ] オプション画面に設定項目追加
+- [ ] USPとの連携
+- [ ] テスト作成
+
+---
+
+##### 3. カラーテーマ選択（優先度：高）
+
+**目的:** ダーク/ライト/システムテーマの切り替え実装
+
+**現状:**
+- CSS変数でグラデーションカラーのみ設定（ハードコード）
+- テーマ切り替え機能なし
+
+**必要な作業:**
+- [ ] テーマ定義の作成（`src/styles/themes.ts`）
+  - ダークテーマ
+  - ライトテーマ
+  - システムテーマ（`prefers-color-scheme`検出）
+- [ ] テーマ適用ロジックの実装
+- [ ] オプション画面に設定項目追加
+- [ ] USPとの連携
+- [ ] 全コンポーネントのテーマ対応確認
+- [ ] テスト作成
+
+**関連ファイル:**
+- `src/content/edit-ui/index.ts`
+- `src/components/DeckEditTopBar.vue`
+- `src/components/RightArea.vue`
+- `src/components/CardDetail.vue`
+- その他全Vueコンポーネント
+
+---
+
+##### 4. 言語を拡張機能内メニューから変更（優先度：高）
+
+**目的:** 拡張機能内で言語を選択できるようにする
+
+**現状:**
+- ✅ 言語検出機能実装済み（10言語対応）
+- ❌ 言語変更機能なし（公式サイトの設定に依存）
+
+**必要な作業:**
+- [ ] 言語設定の永続化（`chrome.storage.local`）
+- [ ] API呼び出し時のlocale付与ロジック
+  - 全APIファイルの確認と修正
+  - `request_locale`パラメータの統一的な付与
+- [ ] オプション画面に言語選択UI追加
+  - 言語一覧（auto/ja/en/ko/ae/cn/de/fr/it/es/pt）
+- [ ] USPとの連携
+- [ ] テスト作成（各言語での動作確認）
+
+**課題:**
+- 公式サイト側の言語設定との整合性
+- セッション管理への影響
+
+**関連ファイル:**
+- `src/utils/language-detector.ts`
+- `src/api/*.ts`（全APIファイル）
+- `src/options/App.vue`
+
+---
+
+### 次のステップ: Phase 2 - UI・データ管理
+
+以下の機能は Phase 1 完了後に着手：
+
+5. デッキメタデータの編集
+6. loadダイアログでの画像を含めた実用的な表示
+7. デッキ編集画面でシャッフル、ソート、スクショボタン追加
+8. 検索チャットでの高度な操作（絞り込み、デッキ内の画像表示）
+9. import/export（csv, json, png）
+
+---
+
+### 次のステップ: Phase 3 - 検証機能
+
+以下の機能は Phase 2 完了後に着手：
+
+10. 禁止制限順守確認on/off
+11. 禁止制限リストの差分表示
+
+---
+
+## 技術的なメモ
+
+### 開発方針
+- TDD（Test-Driven Development）を推奨
+- 段階的リリース（Phase 1完了時にv0.4.0-alpha等）
+- 基盤が先に完成するので、後続機能の実装が楽になる
+
+### ブラウザ制御
+- Chrome DevTools Protocol（CDP）を使用
+- Playwrightは使用不可（ログイン制約）
+- WebSocket経由でChromiumを制御
+
+### テスト
+- 単体テスト: Jest
+- E2Eテスト: Chrome CDP経由のNode.jsスクリプト
+- テストページ: `https://www.db.yugioh-card.com/yugiohdb/#/ytomo/test`
+
+---
+
+## 参考資料
+
+- **調査結果詳細**: `tmp/wip/v0.4.0-investigation.md`
+- **マイルストーン**: `tasks/milestone.md`
+- **実装設計**: `docs/design/implementation-design.md`
