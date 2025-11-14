@@ -6,6 +6,19 @@
 
 ---
 
+## 2025-11-14: PR #8マージ完了 (dev → main) - popup UI改善とブランチ保護強化
+
+- **PR #8がdevにマージ後、mainにもマージ完了**
+- **変更内容**:
+  - popup UI CSS分離（インラインスタイル廃止、47%コード削減）
+  - webpack.config.js修正（popup.cssコピー設定追加）
+  - CSSカスタムプロパティ導入（ダークモード対応基盤）
+  - main/devブランチ保護強化（PR必須化、直接push完全禁止）
+- **効果**: 今後は管理者も含めて必ずPR経由でのワークフローが強制される
+- **PR**: https://github.com/TomoTom0/YuGiOh-NEXT/pull/8
+
+---
+
 ## 2025-11-14: PR #8レビュー対応完了 - webpack修正とCSS変数導入
 
 - **PR #8レビュー指摘2件に対応**:
