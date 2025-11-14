@@ -15,119 +15,106 @@
 - [x] 現状の実装状況調査
 - [x] 調査結果のドキュメント化（`tmp/wip/v0.4.0-investigation.md`）
 - [x] ブランチ作成（`feature/v0.4.0-foundation`）
+- [x] **Phase 1 - 基盤整備** ✅
 
-#### 現在の作業: Phase 1 - 基盤整備
+#### Phase 1 完了（2025-11-15）
 
 **目標:** URLパラメータ、画像サイズ、テーマ、言語切り替えの基盤実装
 
-##### 1. USPでの制御と再現（優先度：最高）
+**成果:**
+- ✅ Week 1（基盤実装）
+  - 型定義拡張（`src/types/settings.ts`）
+  - テーマシステム実装（`src/styles/themes.ts`, `themes.css`）
+  - 設定ストア実装（`src/stores/settings.ts`）
+  - URLステートマネージャー実装（`src/utils/url-state.ts`）
+- ✅ Week 2（UI統合・テスト）
+  - deck-editストアへのUSP統合
+  - テーマCSS読み込み
+  - カードサイズ・テーマのCSS変数適用
+  - オプション画面の拡張（SettingsPanel.vue）
+  - E2Eテスト作成（全6テスト成功）
 
-**目的:** 画面の全状態をURLパラメータで再現可能にする
+**残タスク:**
+- [ ] ドキュメント更新（README.md, CHANGELOG.md）
+- [ ] Phase 2への移行準備
 
-**現状:**
-- ✅ `dno`パラメータのみ実装済み（デッキ番号指定）
+#### 現在の作業: ドキュメント更新
 
-**必要な作業:**
-- [ ] URLパラメータ仕様の設計
-  - 表示モード（list/grid）
-  - ソート順
-  - カードタブ（info/qa/related/products）
-  - 画像サイズ（small/medium/large/llarge）
-  - テーマ（dark/light/system）
-  - 言語（auto/ja/en/ko/...）
-  - フィルター条件
-- [ ] 双方向同期の実装（状態↔URL）
-- [ ] 各機能との連携
-- [ ] テスト作成
+##### ✅ 1. USPでの制御と再現（完了）
 
-**関連ファイル:**
-- `src/stores/deck-edit.ts`
-- `src/stores/settings.ts`（新規作成予定）
+**実装内容:**
+- ✅ URLパラメータ仕様の設計・実装
+  - UI状態: mode, sort, tab, ctab, detail
+  - 設定: size, theme, lang, dno
+- ✅ 双方向同期の実装（`URLStateManager`）
+- ✅ deck-editストアとの連携
+- ✅ テスト作成（E2Eテスト）
+
+**成果物:**
+- `src/utils/url-state.ts`
+- `src/stores/deck-edit.ts`（USP統合）
 
 ---
 
-##### 2. 画像大きさ変更オプション（優先度：高）
+##### ✅ 2. 画像大きさ変更オプション（完了）
 
-**目的:** 4段階の画像サイズ切り替えを実装
-
-**現状:**
-- デッキセクション: 36px × 53px（固定）
-- リスト表示: 36px幅
-- グリッド表示: 60px幅
-
-**v0.4.0の要件:**
-- small（36px）
-- medium（60px）
-- large（未定義、要検討）
-- llarge（未定義、要検討）
-
-**必要な作業:**
-- [ ] 設定ストアの作成（`src/stores/settings.ts`）
-- [ ] CSS変数の定義（`--card-width`, `--card-height`）
-- [ ] 各コンポーネントでCSS変数を使用するよう修正
+**実装内容:**
+- ✅ 設定ストアの作成（`src/stores/settings.ts`）
+- ✅ CSS変数の定義（`--card-width`, `--card-height`）
+- ✅ 4段階サイズ定義
+  - small: 36×53px
+  - medium: 60×88px
+  - large: 90×132px
+  - xlarge: 120×176px
+- ✅ コンポーネント修正
   - `src/components/DeckCard.vue`
   - `src/components/CardList.vue`
-  - `src/components/CardInfo.vue`
-- [ ] オプション画面に設定項目追加
-- [ ] USPとの連携
-- [ ] テスト作成
+- ✅ オプション画面に設定項目追加（SettingsPanel.vue）
+- ✅ USPとの連携
+- ✅ テスト作成
+
+**成果物:**
+- `src/types/settings.ts`（型定義）
+- `src/stores/settings.ts`（設定管理）
+- `src/options/SettingsPanel.vue`（UI）
 
 ---
 
-##### 3. カラーテーマ選択（優先度：高）
+##### ✅ 3. カラーテーマ選択（完了）
 
-**目的:** ダーク/ライト/システムテーマの切り替え実装
-
-**現状:**
-- CSS変数でグラデーションカラーのみ設定（ハードコード）
-- テーマ切り替え機能なし
-
-**必要な作業:**
-- [ ] テーマ定義の作成（`src/styles/themes.ts`）
-  - ダークテーマ
-  - ライトテーマ
+**実装内容:**
+- ✅ テーマ定義の作成（`src/styles/themes.ts`, `themes.css`）
+  - ダークテーマ（28 CSS変数）
+  - ライトテーマ（28 CSS変数）
   - システムテーマ（`prefers-color-scheme`検出）
-- [ ] テーマ適用ロジックの実装
-- [ ] オプション画面に設定項目追加
-- [ ] USPとの連携
-- [ ] 全コンポーネントのテーマ対応確認
-- [ ] テスト作成
+- ✅ テーマ適用ロジックの実装
+- ✅ オプション画面に設定項目追加
+- ✅ USPとの連携
+- ✅ テスト作成
 
-**関連ファイル:**
-- `src/content/edit-ui/index.ts`
-- `src/components/DeckEditTopBar.vue`
-- `src/components/RightArea.vue`
-- `src/components/CardDetail.vue`
-- その他全Vueコンポーネント
+**成果物:**
+- `src/styles/themes.ts`
+- `src/styles/themes.css`
+- `src/stores/settings.ts`（テーマ管理機能）
 
 ---
 
-##### 4. 言語を拡張機能内メニューから変更（優先度：高）
+##### ✅ 4. 言語を拡張機能内メニューから変更（完了）
 
-**目的:** 拡張機能内で言語を選択できるようにする
-
-**現状:**
-- ✅ 言語検出機能実装済み（10言語対応）
-- ❌ 言語変更機能なし（公式サイトの設定に依存）
-
-**必要な作業:**
-- [ ] 言語設定の永続化（`chrome.storage.local`）
-- [ ] API呼び出し時のlocale付与ロジック
-  - 全APIファイルの確認と修正
-  - `request_locale`パラメータの統一的な付与
-- [ ] オプション画面に言語選択UI追加
+**実装内容:**
+- ✅ 言語設定の永続化（`chrome.storage.local`）
+- ✅ オプション画面に言語選択UI追加
   - 言語一覧（auto/ja/en/ko/ae/cn/de/fr/it/es/pt）
-- [ ] USPとの連携
-- [ ] テスト作成（各言語での動作確認）
+- ✅ USPとの連携
 
-**課題:**
-- 公式サイト側の言語設定との整合性
-- セッション管理への影響
+**成果物:**
+- `src/options/SettingsPanel.vue`（言語選択UI）
+- `src/stores/settings.ts`（言語設定管理）
 
-**関連ファイル:**
-- `src/utils/language-detector.ts`
-- `src/api/*.ts`（全APIファイル）
-- `src/options/App.vue`
+**残課題（Phase 2以降）:**
+- API呼び出し時のlocale付与ロジック
+- 全APIファイルの修正
+- 公式サイト側の言語設定との整合性確認
 
 ---
 

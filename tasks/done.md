@@ -312,3 +312,84 @@
 
 - **2025-11-07 〜 2025-11-14**: `docs/_archived/tasks/done_2025-11-07_to_11-14.md`
 - **2025-11-07以前**: `docs/_archived/tasks/done_full_2025-11-07.md`
+
+## 2025-11-15: v0.4.0 Phase 1完了 - 基盤整備
+
+### 実装内容
+
+**Week 1（基盤実装）:**
+- 型定義拡張（`src/types/settings.ts`）
+  - CardSize, Theme, Language, AppSettings, DeckEditUIState等
+  - CARD_SIZE_MAP（4段階のサイズ定義）
+- テーマシステム実装（`src/styles/themes.ts`, `themes.css`）
+  - 28個のCSS変数定義（ライト/ダーク）
+  - システムテーマ検出機能
+- 設定ストア実装（`src/stores/settings.ts`）
+  - chrome.storage.localへの永続化
+  - テーマ・カードサイズのDOM適用機能
+- URLステートマネージャー実装（`src/utils/url-state.ts`）
+  - UI状態とURLの双方向同期
+  - ハッシュルーティング対応
+
+**Week 2（UI統合・テスト）:**
+- deck-editストアへのUSP統合
+  - initializeOnPageLoad()でURL状態復元
+  - watchによる自動URL同期
+  - applyTheme()とapplyCardSize()の呼び出し追加
+- テーマCSS読み込み（content/edit-ui/index.ts, options/index.ts）
+- カードコンポーネントのCSS変数適用
+  - DeckCard.vue: --card-width, --card-height
+  - CardList.vue: --bg-primary, --text-primary等
+- オプション画面の拡張
+  - SettingsPanel.vue作成（カードサイズ/テーマ/言語選択UI）
+  - App.vueに「設定」タブ追加
+  - options/index.tsでPinia導入
+- E2Eテスト作成
+  - tmp/browser/test-v0.4.0-phase1.js
+  - 6つのテストケース（全て成功）
+
+### テスト結果
+
+```
+✅ デッキ編集画面にアクセス
+✅ デフォルト設定が適用されているか確認
+✅ カードサイズのCSS変数が設定されているか確認
+✅ テーマのCSS変数が設定されているか確認
+✅ URL状態パラメータが正しく動作するか確認
+✅ URLパラメータが設定に優先されるか確認
+
+Passed: 6/6 ✅
+```
+
+### 成果物
+
+**新規ファイル:**
+- `src/types/settings.ts`（拡張）
+- `src/styles/themes.ts`
+- `src/styles/themes.css`
+- `src/stores/settings.ts`
+- `src/utils/url-state.ts`
+- `src/options/SettingsPanel.vue`
+
+**修正ファイル:**
+- `src/stores/deck-edit.ts`（USP統合）
+- `src/content/edit-ui/index.ts`（テーマCSS読み込み）
+- `src/components/DeckCard.vue`（CSS変数適用）
+- `src/components/CardList.vue`（CSS変数適用）
+- `src/options/App.vue`（設定タブ追加）
+- `src/options/index.ts`（Pinia導入）
+
+### コミット
+
+- `feat: Phase 1基盤実装完了 - 設定管理システム構築`
+- `feat: deck-editストアにUSP統合完了`
+- `feat: テーマCSSの読み込みとハードコード削除`
+- `feat: カードサイズ・テーマ色のCSS変数適用完了`
+- `feat: Phase 1 Week 2完了 - オプション画面とE2Eテスト`
+
+### 残タスク
+
+- README.md更新（v0.4.0機能追記）
+- バージョン番号更新（0.3.2 → 0.4.0-alpha）
+- Phase 2への移行準備
+
