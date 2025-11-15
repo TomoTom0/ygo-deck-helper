@@ -6,6 +6,40 @@
 
 ---
 
+## 2025-11-15: デッキ編集画面レイアウト修正 - xlarge カードサイズ対応
+
+- **タイムスタンプ**: 2025-11-15
+- **修正内容**: xlarge (120x176px) カードサイズでのレイアウト問題を修正
+
+### 解決した問題
+
+1. **上部重なり問題** ✅
+   - TopBar と first section が重なっていた
+   - `.deck-areas` の `marginTop` を最低32px確保
+
+2. **下部重なり問題** ✅  
+   - trash section と検索入力欄が重なっていた
+   - `.deck-areas` の `paddingBottom` を150pxに調整
+
+3. **過剰なスクロール問題** ✅
+   - 下方向にスクロールできすぎていた
+   - `paddingBottom` を `cardHeight * 3.5 + 250` から `150px` 固定に変更
+
+### 修正ファイル
+
+**`src/content/edit-ui/DeckEditLayout.vue`**
+- Line 178: `marginTop = Math.max(32, Math.ceil((cardHeight - 53) / 2))`
+- Line 181: `paddingBottom = 150`
+- Line 458: `.deck-areas` に `min-height: fit-content` 追加
+
+### 最終検証結果
+
+- ✅ Top gap: 30px（重なりなし）
+- ✅ Bottom spacing: 93px（重なりなし）
+- ✅ Scroll height: 2404px（適切な範囲）
+
+---
+
 ## 2025-11-14: v0.3.2開発完了 - milestone.md要件全達成
 
 - **タイムスタンプ**: 2025-11-14
